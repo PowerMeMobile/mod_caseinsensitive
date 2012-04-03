@@ -5,7 +5,7 @@ BIN = bin
 CS_FLAGS = -target:library -r:System.dll -r:System.Web.dll
 MKDIR = mkdir -p
 RMDIR = rmdir
-DLL = RG.ModCaseIsensitive.dll
+DLL = RG.ModCaseInsensitive.dll
 SRC = src/RG.ModCaseInsensitive
 
 all: $(BIN)/$(DLL)
