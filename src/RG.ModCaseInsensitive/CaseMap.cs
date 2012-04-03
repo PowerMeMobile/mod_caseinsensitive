@@ -20,14 +20,20 @@ namespace RG.ModCaseInsensitive {
 		public string Resolve( string url ) {
 			var urlLower = url.ToLowerInvariant();
 			if ( _MDefault.ContainsKey( urlLower ) ) {
+				#if DEBUG_CONSOLE
 				Console.WriteLine("CaseMap:Resolve FOUND DEFAULT: '{0}'", urlLower);
+				#endif
 				return _MDefault[urlLower];
 			}
 			if ( _MCommon.ContainsKey( urlLower ) ) {
+				#if DEBUG_CONSOLE
 				Console.WriteLine("CaseMap:Resolve FOUND COMMON: '{0}'", urlLower);
+				#endif
 				return _MCommon[urlLower];
 			}
+			#if DEBUG_CONSOLE
 			Console.WriteLine("CaseMap:Resolve NOT FOUND: '{0}'", url);
+			#endif
 			return url;
 		}
 		
@@ -36,12 +42,16 @@ namespace RG.ModCaseInsensitive {
 		}
 		
 		private void StoreDir ( string url ) {
+			#if DEBUG_CONSOLE
 			Console.WriteLine("Storing directory: '{0}'", url);
+			#endif
 			_MCommon[ url ] = url + "/";
 			_MCommon[ url + "/" ] = url + "/";
 		}
 		private void StoreReg ( string url ) {
+			#if DEBUG_CONSOLE
 			Console.WriteLine("Storing regular: '{0}'", url);
+			#endif
 			_MCommon[ url.ToLowerInvariant() ] = url;
 			if ( Path.GetFileName(url).ToLowerInvariant() == "default.aspx" ) {
 				var dir = System.IO.Path.GetDirectoryName( url );
