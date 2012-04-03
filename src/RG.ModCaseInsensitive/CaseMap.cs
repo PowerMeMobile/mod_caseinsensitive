@@ -11,29 +11,34 @@ namespace RG.ModCaseInsensitive {
 		
 		private IDictionary< string, string > _MCommon = new Dictionary< string, string >();
 		private IDictionary< string, string > _MDefault = new Dictionary< string, string >();
+		private IDictionary< string, bool > _MIgnore = new Dictionary< string, bool >();
 		
 		public CaseMap ( string fsBase, string urlBase ) {
 			FSBase = fsBase;
 			URLBase = urlBase;
+			string[] ignorePaths = Config.Get().Ignore.GetUrls();
+			foreach ( var s in ignorePaths ) {
+				Common.Log("Adding to ignore map: '{0}'", s);
+				_MIgnore[s] = true;
+			}
+		}
+		
+		private bool ShouldIgnore( string url ) {
+			Common.Log("ShouldIgnore( '{0}' ) -> {1}", url, _MIgnore.ContainsKey( url ) );
+			return _MIgnore.ContainsKey( url ) && _MIgnore[ url ];
 		}
 		
 		public string Resolve( string url ) {
 			var urlLower = url.ToLowerInvariant();
 			if ( _MDefault.ContainsKey( urlLower ) ) {
-				#if DEBUG_CONSOLE
-				Console.WriteLine("CaseMap:Resolve FOUND DEFAULT: '{0}'", urlLower);
-				#endif
+				Common.Log("CaseMap:Resolve FOUND DEFAULT: '{0}'", urlLower);
 				return _MDefault[urlLower];
 			}
 			if ( _MCommon.ContainsKey( urlLower ) ) {
-				#if DEBUG_CONSOLE
-				Console.WriteLine("CaseMap:Resolve FOUND COMMON: '{0}'", urlLower);
-				#endif
+				Common.Log("CaseMap:Resolve FOUND COMMON: '{0}'", urlLower);
 				return _MCommon[urlLower];
 			}
-			#if DEBUG_CONSOLE
-			Console.WriteLine("CaseMap:Resolve NOT FOUND: '{0}'", url);
-			#endif
+			Common.Log("CaseMap:Resolve NOT FOUND: '{0}'", url);
 			return url;
 		}
 		
@@ -42,16 +47,12 @@ namespace RG.ModCaseInsensitive {
 		}
 		
 		private void StoreDir ( string url ) {
-			#if DEBUG_CONSOLE
-			Console.WriteLine("Storing directory: '{0}'", url);
-			#endif
+			Common.Log("Storing directory: '{0}'", url);
 			_MCommon[ url ] = url + "/";
 			_MCommon[ url + "/" ] = url + "/";
 		}
 		private void StoreReg ( string url ) {
-			#if DEBUG_CONSOLE
-			Console.WriteLine("Storing regular: '{0}'", url);
-			#endif
+			Common.Log("Storing regular: '{0}'", url);
 			_MCommon[ url.ToLowerInvariant() ] = url;
 			if ( Path.GetFileName(url).ToLowerInvariant() == "default.aspx" ) {
 				var dir = System.IO.Path.GetDirectoryName( url );
@@ -62,6 +63,9 @@ namespace RG.ModCaseInsensitive {
 		}
 		
 		private void ProcessDir ( string path, string url ) {
+			if ( ShouldIgnore( url ) )
+				return;
+			
 			var dirInfo = new DirectoryInfo( path );
 			StoreDir( url );
 			
@@ -78,6 +82,9 @@ namespace RG.ModCaseInsensitive {
 			}
 		}
 		private void ProcessReg ( string path, string url ) {
+			if ( ShouldIgnore( url ) )
+				return;
+			
 			StoreReg( url );
 		}
 	}
