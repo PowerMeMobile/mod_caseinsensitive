@@ -28,7 +28,38 @@ namespace RG.ModCaseInsensitive {
 			return _MIgnore.ContainsKey( url ) && _MIgnore[ url ];
 		}
 		
+		public string ResolveReduced( string originalUrl, string head, string tail ) {
+			Common.Log(
+				"CaseMap:ResolveReduced( '{0}', '{1}', '{2}' )", 
+				originalUrl, head, tail 
+			);
+			
+			if ( head == "/" || head == "" ) {
+				Common.Log( "CaseMap:Resolve NOT FOUND: '{0}'", originalUrl );
+				return originalUrl;
+			}
+
+			var urlLower = head.ToLowerInvariant();
+			if ( _MDefault.ContainsKey( urlLower ) ) {
+				Common.Log("CaseMap:ResolveReduced FOUND DEFAULT: '{0}'", urlLower);
+				return Path.Combine(_MDefault[urlLower], tail);
+			}
+			else if ( _MCommon.ContainsKey( urlLower ) ) {
+				Common.Log("CaseMap:ResolveReduced FOUND COMMON: '{0}'", urlLower);
+				return Path.Combine(_MCommon[urlLower], tail);
+			}
+			else {
+				return ResolveReduced(originalUrl,
+						Path.GetDirectoryName( head ),
+						Path.Combine( Path.GetFileName( head ), tail )
+					);
+			}
+		}
+
 		public string Resolve( string url ) {
+			return ResolveReduced(url, url, "");
+			
+			/*
 			var urlLower = url.ToLowerInvariant();
 			if ( _MDefault.ContainsKey( urlLower ) ) {
 				Common.Log("CaseMap:Resolve FOUND DEFAULT: '{0}'", urlLower);
@@ -40,6 +71,7 @@ namespace RG.ModCaseInsensitive {
 			}
 			Common.Log("CaseMap:Resolve NOT FOUND: '{0}'", url);
 			return url;
+			*/
 		}
 		
 		public void BuildIndex () {
