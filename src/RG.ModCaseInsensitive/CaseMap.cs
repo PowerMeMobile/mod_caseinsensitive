@@ -34,8 +34,8 @@ namespace RG.ModCaseInsensitive {
 				originalUrl, head, tail 
 			);
 			
-			if ( head == "/" || head == "" ) {
-				Common.Log( "CaseMap:Resolve NOT FOUND: '{0}'", originalUrl );
+			if ( head == HttpContext.Current.Request.ApplicationPath || head == "/" || head == "" ) {
+				Common.Log( "CaseMap:ResolveReduced NOT FOUND: '{0}'", originalUrl );
 				return originalUrl;
 			}
 
@@ -56,8 +56,16 @@ namespace RG.ModCaseInsensitive {
 			}
 		}
 
-		public string Resolve( string url ) {
-			return ResolveReduced(url, url, "");
+		public string Resolve( string urlAndQS ) {
+			var parts = urlAndQS.Split(new []{'?'}, 2);
+			var url = parts[0];
+			var qs = parts.Length == 2 ? ("?" + parts[1]) : "";
+			Common.Log("CaseMap:Resolve( '{0}' )", urlAndQS);
+			Common.Log("CaseMap:Resolve url: '{0}'", url);
+			Common.Log("CaseMap:Resolve  qs: '{0}'", qs);
+			var adjusted = (ResolveReduced(url, url, "") + qs);
+			Common.Log("CaseMap:Resolve adjusted: '{0}'", adjusted);
+			return adjusted;
 			
 			/*
 			var urlLower = url.ToLowerInvariant();
