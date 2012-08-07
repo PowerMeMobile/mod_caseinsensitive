@@ -25,9 +25,24 @@ namespace RG.ModCaseInsensitive {
 			var ctx = HttpContext.Current;
 			
 			var path = ctx.Request.RawUrl;
-			var newPath = _CM.Resolve( path );
-			Common.Log("ModCaseInsensitive: rewritting [ '{0}' -> '{1}' ]", path, newPath);
-			ctx.RewritePath( newPath );
+			//var newPath = _CM.Resolve( path );
+			//Common.Log("ModCaseInsensitive: rewritting [ '{0}' -> '{1}' ]", path, newPath);
+			//ctx.RewritePath( newPath );
+
+			var newPathParts = _CM.Resolve( path );
+
+			var filePath = newPathParts[0];
+			var pathInfo = newPathParts[1];
+			var queryStr = newPathParts[2];
+
+			Common.Log("ModCaseInsensitive: rewritting [ '{0}' -> '{1}' ]", path, filePath + pathInfo + queryStr);
+
+			if ( pathInfo == String.Empty ) {
+				ctx.RewritePath( filePath + queryStr );
+			} 
+			else {
+				ctx.RewritePath( filePath, pathInfo, queryStr );
+			}			
 		} 
 	}
 }
