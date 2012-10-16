@@ -28,7 +28,7 @@ namespace RG.ModCaseInsensitive {
 			return _MIgnore.ContainsKey( url ) && _MIgnore[ url ];
 		}
 		
-		public string[] ResolveReduced( string originalUrl, string head, string tail ) {
+		public RoutingDecision ResolveReduced( string originalUrl, string head, string tail ) {
 			Common.Log(
 				"CaseMap:ResolveReduced( '{0}', '{1}', '{2}' )", 
 				originalUrl, head, tail 
@@ -36,19 +36,29 @@ namespace RG.ModCaseInsensitive {
 			
 			if ( head == HttpContext.Current.Request.ApplicationPath || head == "/" || head == "" ) {
 				Common.Log( "CaseMap:ResolveReduced NOT FOUND: '{0}'", originalUrl );
-				return new string[3]{originalUrl, String.Empty, null};
+				return new RoutingDecision() {
+					RewriteNeeded = false,
+					Url = originalUrl,
+					PathInfo = tail
+				};
 			}
 
 			var urlLower = head.ToLowerInvariant();
 			if ( _MDefault.ContainsKey( urlLower ) ) {
 				Common.Log("CaseMap:ResolveReduced FOUND DEFAULT: '{0}'", urlLower);
-				//return Path.Combine(_MDefault[urlLower], tail);
-				return new string[3]{_MDefault[urlLower], tail, null};
+				return new RoutingDecision() {
+					RewriteNeeded = (head != _MCommon[urlLower]),
+					Url = _MCommon[urlLower],
+					PathInfo = tail
+				};
 			}
 			else if ( _MCommon.ContainsKey( urlLower ) ) {
 				Common.Log("CaseMap:ResolveReduced FOUND COMMON: '{0}'", urlLower);
-				//return Path.Combine(_MCommon[urlLower], tail);
-				return new string[3]{_MCommon[urlLower], tail, null};
+				return new RoutingDecision() {
+					RewriteNeeded = (head != _MCommon[urlLower]),
+					Url = _MCommon[urlLower],
+					PathInfo = tail
+				};
 			}
 			else {
 				return ResolveReduced(originalUrl,
@@ -58,7 +68,7 @@ namespace RG.ModCaseInsensitive {
 			}
 		}
 
-		public string[] Resolve( string urlAndQS ) {
+		public RoutingDecision Resolve( string urlAndQS ) {
 			var parts = urlAndQS.Split(new []{'?'}, 2);
 			var url = parts[0];
 			var qs = parts.Length == 2 ? ("?" + parts[1]) : "";
@@ -66,29 +76,12 @@ namespace RG.ModCaseInsensitive {
 			Common.Log("CaseMap:Resolve url: '{0}'", url);
 			Common.Log("CaseMap:Resolve  qs: '{0}'", qs);
 			
-			//var adjusted = (ResolveReduced(url, url, "") + qs);
-			//Common.Log("CaseMap:Resolve adjusted: '{0}'", adjusted);
-			//return adjusted;
-			
-			var res = ResolveReduced(url, url, "");
-			res[2] = qs;
-			Common.Log("CaseMap:Resolve url:'{0}', pi:'{1}'", res[0], res[1]);
+			var rd = ResolveReduced(url, url, "");
 
-			return res;			
-			
-			/*
-			var urlLower = url.ToLowerInvariant();
-			if ( _MDefault.ContainsKey( urlLower ) ) {
-				Common.Log("CaseMap:Resolve FOUND DEFAULT: '{0}'", urlLower);
-				return _MDefault[urlLower];
-			}
-			if ( _MCommon.ContainsKey( urlLower ) ) {
-				Common.Log("CaseMap:Resolve FOUND COMMON: '{0}'", urlLower);
-				return _MCommon[urlLower];
-			}
-			Common.Log("CaseMap:Resolve NOT FOUND: '{0}'", url);
-			return url;
-			*/
+			rd.QueryString = qs;
+			Common.Log("CaseMap:Resolve url:'{0}', pi:'{1}'", rd.Url, rd.PathInfo);
+
+			return rd;
 		}
 		
 		public void BuildIndex () {
