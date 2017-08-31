@@ -4,7 +4,8 @@ using System.Web;
 using System.Configuration;
 using System.Collections.Generic;
 
-namespace RG.ModCaseInsensitive {
+namespace mod_caseinsensitive
+{
 	public class IgnoreElement : ConfigurationElement {
 		[ConfigurationProperty("url", IsRequired=true)]
 		public string url {
@@ -33,7 +34,7 @@ namespace RG.ModCaseInsensitive {
 	}
 	
 	public class Config : ConfigurationSection {
-		public static Config _config = ConfigurationManager.GetSection("rg.modcaseinsensitive") as Config;
+		public static Config _config = ConfigurationManager.GetSection("mod_caseinsensitive") as Config;
 		public static Config Get() {
 			return _config;
 		}

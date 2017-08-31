@@ -4,7 +4,8 @@ using System.Web;
 using System.Collections.Generic;
 using System.IO;
 
-namespace RG.ModCaseInsensitive {
+namespace mod_caseinsensitive
+{
 	internal class CaseMap {
 		public string FSBase { get; private set; }
 		public string URLBase { get; private set; }

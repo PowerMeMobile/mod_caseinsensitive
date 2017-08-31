@@ -4,7 +4,8 @@ using System.Web;
 using System.Collections.Generic;
 using System.IO;
 
-namespace RG.ModCaseInsensitive {
+namespace mod_caseinsensitive
+{
 	internal class RoutingDecision {
 		public RoutingDecision() {
 			RewriteNeeded = false;
