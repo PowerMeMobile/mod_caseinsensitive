@@ -32,10 +32,15 @@ namespace mod_caseinsensitive
                 }
                 else
                 {
-                    Common.Log("ModCaseInsensitive : rewritting ctx.RewritePath(Url, PathInfo, QueryString)");
-                    ctx.RewritePath(Url, PathInfo, QueryString);
-                    //ctx.RewritePath(Url + "/" + PathInfo + QueryString);
-                    //ctx.RewritePath(Url + "/" + PathInfo, "", QueryString);
+                    var pathInfo = PathInfo.TrimEnd('/');
+                    if (!pathInfo.StartsWith("/")) pathInfo = '/' + pathInfo;
+                    QueryString = QueryString.TrimStart('?');
+
+                    // for mono 4.8 Patn info must start from / and querystring  should not contain first ?
+
+
+                    Common.Log("ModCaseInsensitive : rewritting ctx.RewritePath({0}, {1}, {2})", Url, pathInfo, QueryString);
+                    ctx.RewritePath(Url, pathInfo, QueryString);
                 }
             }
             else
