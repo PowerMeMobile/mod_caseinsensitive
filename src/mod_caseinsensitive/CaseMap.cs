@@ -31,12 +31,12 @@ namespace mod_caseinsensitive
 		
 		public RoutingDecision ResolveReduced( string originalUrl, string head, string tail ) {
 			Common.Log(
-				"CaseMap:ResolveReduced( '{0}', '{1}', '{2}' )", 
+				"ResolveReduced( 'url: {0}', head: '{1}', tail: '{2}' )", 
 				originalUrl, head, tail 
 			);
 			
 			if ( head == HttpContext.Current.Request.ApplicationPath || head == "/" || head == "" ) {
-				Common.Log( "CaseMap:ResolveReduced NOT FOUND: '{0}'", originalUrl );
+				Common.Log( "ResolveReduced not found: '{0}'", originalUrl );
 				return new RoutingDecision() {
 					RewriteNeeded = false,
 					Url = originalUrl,
@@ -46,7 +46,7 @@ namespace mod_caseinsensitive
 
 			var urlLower = head.ToLowerInvariant();
 			if ( _MDefault.ContainsKey( urlLower ) ) {
-				Common.Log("CaseMap:ResolveReduced FOUND DEFAULT: '{0}'", urlLower);
+				Common.Log("ResolveReduced found default: '{0}'", urlLower);
 				return new RoutingDecision() {
 					RewriteNeeded = (head != _MCommon[urlLower]),
 					Url = _MCommon[urlLower],
@@ -54,7 +54,7 @@ namespace mod_caseinsensitive
 				};
 			}
 			else if ( _MCommon.ContainsKey( urlLower ) ) {
-				Common.Log("CaseMap:ResolveReduced FOUND COMMON: '{0}'", urlLower);
+				Common.Log("ResolveReduced found common: '{0}'", urlLower);
 				return new RoutingDecision() {
 					RewriteNeeded = (head != _MCommon[urlLower]),
 					Url = _MCommon[urlLower],
@@ -73,14 +73,11 @@ namespace mod_caseinsensitive
 			var parts = urlAndQS.Split(new []{'?'}, 2);
 			var url = parts[0];
 			var qs = parts.Length == 2 ? ("?" + parts[1]) : "";
-			Common.Log("CaseMap:Resolve( '{0}' )", urlAndQS);
-			Common.Log("CaseMap:Resolve url: '{0}'", url);
-			Common.Log("CaseMap:Resolve  qs: '{0}'", qs);
 			
 			var rd = ResolveReduced(url, url, "");
-
 			rd.QueryString = qs;
-			Common.Log("CaseMap:Resolve url:'{0}', pi:'{1}'", rd.Url, rd.PathInfo);
+
+            Common.Log("Resolved(OrigUrl: '{0}' -> url: '{1}', pi: '{2}', qs : '{3}' )", urlAndQS, rd.Url, rd.PathInfo, rd.QueryString);
 
 			return rd;
 		}
